@@ -6,11 +6,11 @@ namespace Views
 {
     public class UserInterface
     {
-        private readonly IItemService _itemService;
+        private readonly ApiService _apiService;
 
-        public UserInterface(IItemService itemService)
+        public UserInterface(ApiService apiService)
         {
-            _itemService = itemService;
+            _apiService = apiService;
         }
 
         public async Task RunAsync()
@@ -54,23 +54,17 @@ namespace Views
 
         private async Task AddItemAsync()
         {
-            // Implement the logic to add an item by using _itemService
             Console.WriteLine("Adding an item...");
-            // Your logic here
         }
 
         private async Task DeleteItemAsync()
         {
-            // Implement the logic to delete an item by using _itemService
             Console.WriteLine("Deleting an item...");
-            // Your logic here
         }
 
         private async Task PrintItemAsync()
         {
-            // Implement the logic to print an item by using _itemService
             Console.WriteLine("Printing an item...");
-            // Your logic here
         }
     }
 }

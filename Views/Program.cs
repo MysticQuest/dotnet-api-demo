@@ -1,31 +1,22 @@
-﻿using DataAccess;
+﻿using System;
+using System.Net.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Models;
-using Services;
-using System;
-using System.Threading.Tasks;
 
 namespace Views
 {
     class Program
     {
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            var host = CreateHostBuilder(args).Build();
+            var serviceProvider = new ServiceCollection()
+                .AddSingleton(new HttpClient())
+                .AddSingleton<ApiService>(provider =>
+                    new ApiService(provider.GetRequiredService<HttpClient>(), "https://localhost:5001"))
+                .BuildServiceProvider();
 
-            var itemService = host.Services.GetRequiredService<IItemService>();
-            var ui = new UserInterface(itemService);
-            await ui.RunAsync();
+            var apiService = serviceProvider.GetRequiredService<ApiService>();
+            var ui = new UserInterface(apiService);
+            ui.RunAsync();
         }
-
-        static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureServices((_, services) =>
-                {
-                    services.AddScoped<IRepository<Item>, Repository<Item>>();
-                    services.AddHttpClient();
-                    services.AddScoped<IItemService, ItemService>();
-                });
     }
 }
