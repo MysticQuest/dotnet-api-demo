@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Services;
 using Models;
-using System.Threading.Tasks;
 
 namespace Services.Controllers
 {

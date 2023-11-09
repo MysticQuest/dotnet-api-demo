@@ -82,7 +82,7 @@ namespace Views
                 Item item = await _apiService.GetItemByIdAsync(id);
                 if (item != null)
                 {
-                    Console.WriteLine($"ID: {item.Id}, Name: {item.Name}");
+                    Console.WriteLine($"ID: {item.Id}, Name: {item.Url}");
                 }
                 else
                 {
@@ -100,7 +100,7 @@ namespace Views
             IEnumerable<Item> items = await _apiService.GetAllItemsAsync();
             foreach (var item in items)
             {
-                Console.WriteLine($"ID: {item.Id}, Name: {item.Name}");
+                Console.WriteLine($"ID: {item.Id}, Url: {item.Url}");
             }
         }
     }
