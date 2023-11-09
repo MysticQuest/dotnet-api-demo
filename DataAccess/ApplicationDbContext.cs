@@ -10,6 +10,13 @@ namespace DataAccess
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlite($"Data Source={AppDomain.CurrentDomain.BaseDirectory}ItemDatabase.db");
+            base.OnConfiguring(optionsBuilder);
         }
     }
 }
