@@ -1,4 +1,6 @@
 ﻿using Models;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Services
 {
@@ -6,7 +8,7 @@ namespace Services
     {
         Task<IEnumerable<Item>> GetAllItemsAsync();
         Task<Item> GetItemByIdAsync(int id);
-        Task CreateItemAsync(Item item);
+        Task<Item> CreateItemAsync();
         Task UpdateItemAsync(Item item);
         Task DeleteItemAsync(int id);
     }

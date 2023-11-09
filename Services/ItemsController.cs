@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Services;
 using Models;
+using System.Threading.Tasks;
 
 namespace Services.Controllers
 {
@@ -34,10 +35,10 @@ namespace Services.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateItem([FromBody] Item item)
+        public async Task<IActionResult> CreateItem()
         {
-            await _itemService.CreateItemAsync(item);
-            return CreatedAtAction(nameof(GetItem), new { id = item.Id }, item);
+            var newItem = await _itemService.CreateItemAsync();
+            return CreatedAtAction(nameof(GetItem), new { id = newItem.Id }, newItem);
         }
 
         [HttpPut("{id}")]

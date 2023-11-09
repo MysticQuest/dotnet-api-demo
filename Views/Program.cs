@@ -6,7 +6,7 @@ namespace Views
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
             var serviceProvider = new ServiceCollection()
                 .AddSingleton(new HttpClient())
@@ -16,7 +16,7 @@ namespace Views
 
             var apiService = serviceProvider.GetRequiredService<ApiService>();
             var ui = new UserInterface(apiService);
-            ui.RunAsync();
+            await ui.RunAsync();
         }
     }
 }

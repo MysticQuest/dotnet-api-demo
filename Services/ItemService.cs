@@ -2,6 +2,8 @@
 using DataAccess;
 using System.Net.Http;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Services
 {
@@ -26,20 +28,21 @@ namespace Services
             return await _itemRepository.GetByIdAsync(id);
         }
 
-        public async Task CreateItemAsync(Item item)
+        public async Task<Item> CreateItemAsync()
         {
             var httpClient = _httpClientFactory.CreateClient("PostmanEcho");
+            var response = await httpClient.PostAsJsonAsync("https://postman-echo.com/post", new { });
 
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync("https://postman-echo.com/post", item);
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"Failed to receive a successful HTTP response. Status code: {response.StatusCode}");
             }
 
             var responseData = await response.Content.ReadFromJsonAsync<dynamic>();
-            Item responseItem = JsonConvert.DeserializeObject<Item>(Convert.ToString(responseData.data));
+            var item = JsonConvert.DeserializeObject<Item>(Convert.ToString(responseData.data));
 
-            await _itemRepository.CreateAsync(responseItem);
+            await _itemRepository.CreateAsync(item);
+            return item;
         }
 
         public async Task UpdateItemAsync(Item item)
