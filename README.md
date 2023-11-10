@@ -11,6 +11,7 @@ The API can perform tasks such as pinging a domain or querying a remote API, cap
 
 ### Required:
 In order to generate the sqlite database type the following command in the Package Manager Console:
+
 ```Update-Database -Project DataAccess -StartupProject Services```
 
 ### Notes:
