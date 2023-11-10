@@ -11,7 +11,7 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped(typeof(IItemService), typeof(ItemService));
+builder.Services.AddScoped(typeof(IService<>), typeof(ItemService));
 
 var app = builder.Build();
 

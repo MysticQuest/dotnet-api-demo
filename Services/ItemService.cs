@@ -6,7 +6,7 @@ using System.Text.Json;
 
 namespace Services
 {
-    public class ItemService : IItemService
+    public class ItemService : IService<Item>
     {
         private readonly IRepository<Item> _itemRepository;
         private readonly IHttpClientFactory _httpClientFactory;
@@ -19,27 +19,27 @@ namespace Services
             _logger = logger;
         }
 
-        public async Task<IEnumerable<Item>> GetAllItemsAsync()
+        public async Task<IEnumerable<Item>> GetAllAsync()
         {
             return await _itemRepository.GetAllAsync();
         }
 
-        public async Task<Item> GetItemByIdAsync(int id)
+        public async Task<Item> GetByIdAsync(int id)
         {
             return await _itemRepository.GetByIdAsync(id);
         }
 
-        public async Task UpdateItemAsync(Item item)
+        public async Task UpdateAsync(Item item)
         {
             await _itemRepository.UpdateAsync(item);
         }
 
-        public async Task DeleteItemAsync(int id)
+        public async Task DeleteAsync(int id)
         {
             await _itemRepository.DeleteAsync(id);
         }
 
-        public async Task<Item> CreateItemAsync()
+        public async Task<Item> CreateAsync()
         {
             var httpClient = _httpClientFactory.CreateClient("PostmanEcho");
 
