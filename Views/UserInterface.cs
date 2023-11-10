@@ -181,10 +181,10 @@ namespace Views
         {
             try
             {
-                var items = await ApiClient.GetAllAsync();
-                foreach (var item in items)
+                var entities = await ApiClient.GetAllAsync();
+                foreach (var entity in entities)
                 {
-                    PrintSuccess($"ID: {item.Id}, Url: {item.Url}");
+                    PrintEntityDetails(entity);
                 }
             }
             catch (HttpRequestException ex)
@@ -234,5 +234,21 @@ namespace Views
             return input ?? string.Empty;
         }
 
+        private void PrintEntityDetails(IEntity entity)
+        {
+            if (entity == null)
+            {
+                PrintError("Entity is null.");
+                return;
+            }
+
+            Type type = entity.GetType();
+            PrintInstruction($"Details of {type.Name}:");
+            foreach (var prop in type.GetProperties())
+            {
+                var value = prop.GetValue(entity);
+                PrintSuccess($"{prop.Name}: {value}");
+            }
+        }
     }
 }

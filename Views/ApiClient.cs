@@ -38,9 +38,9 @@ namespace Views
             response.EnsureSuccessStatusCode();
         }
 
-        public async Task UpdateAsync(int id, T item)
+        public async Task UpdateAsync(int id, T entity)
         {
-            var response = await _httpClient.PutAsJsonAsync($"Generic/{id}?typeName={_typeName}", item);
+            var response = await _httpClient.PutAsJsonAsync($"Generic/{id}?typeName={_typeName}", entity);
             response.EnsureSuccessStatusCode();
         }
 
