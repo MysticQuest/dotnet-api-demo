@@ -13,6 +13,7 @@ builder.Services.AddHttpClient();
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IService<Item>, ItemService>();
+builder.Services.AddScoped<IService<PingData>, PingDataService>();
 
 var app = builder.Build();
 
