@@ -1,32 +1,34 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Models;
 using Services;
+using System;
+using System.Threading.Tasks;
 
-namespace Services
+namespace ApiDemo.Controllers
 {
-
     [ApiController]
-    [Route("[controller]")]
-    public class GenericController<T> : ControllerBase where T : class, IEntity
+    [Route("api/[controller]")]
+    public class GenericController : ControllerBase
     {
-        private readonly IService<T> _service;
+        private readonly IServiceProvider _serviceProvider;
 
-        public GenericController(IService<T> service)
+        public GenericController(IServiceProvider serviceProvider)
         {
-            _service = service;
+            _serviceProvider = serviceProvider;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string typeName)
         {
-            var items = await _service.GetAllAsync();
+            dynamic service = GetServiceForType(typeName);
+            var items = await service.GetAllAsync();
             return Ok(items);
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get([FromQuery] string typeName, int id)
         {
-            var item = await _service.GetByIdAsync(id);
+            dynamic service = GetServiceForType(typeName);
+            var item = await service.GetByIdAsync(id);
             if (item == null)
             {
                 return NotFound();
@@ -35,35 +37,43 @@ namespace Services
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create()
+        public async Task<IActionResult> Create([FromQuery] string typeName)
         {
-            var createdItem = await _service.CreateAsync();
-            return CreatedAtAction(nameof(Get), new { id = GetItemId(createdItem) }, createdItem);
+            dynamic service = GetServiceForType(typeName);
+            var createdItem = await service.CreateAsync();
+            return CreatedAtAction(nameof(Get), new { typeName = typeName, id = createdItem.Id }, createdItem);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] T entity)
+        public async Task<IActionResult> Update([FromQuery] string typeName, int id, [FromBody] dynamic entity)
         {
-            if ((int)GetItemId(entity) != id)
+            dynamic service = GetServiceForType(typeName);
+            if (entity.Id != id)
             {
                 return BadRequest();
             }
 
-            await _service.UpdateAsync(entity);
+            await service.UpdateAsync(entity);
             return NoContent();
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete([FromQuery] string typeName, int id)
         {
-            await _service.DeleteAsync(id);
+            dynamic service = GetServiceForType(typeName);
+            await service.DeleteAsync(id);
             return NoContent();
         }
 
-        private object GetItemId(T entity)
+        private dynamic GetServiceForType(string typeName)
         {
-            var propertyInfo = entity.GetType().GetProperty("Id");
-            return propertyInfo.GetValue(entity, null);
+            var type = Type.GetType(typeName);
+            if (type == null)
+            {
+                throw new ArgumentException("Type not found", nameof(typeName));
+            }
+            var serviceType = typeof(IService<>).MakeGenericType(type);
+            return _serviceProvider.GetService(serviceType);
         }
     }
 }

@@ -89,11 +89,11 @@ namespace Views
 
         private async Task TriggerCreateAsync()
         {
-            PrintError("Triggering item creation on the server...");
+            PrintAction("Triggering item creation on the server...");
             try
             {
                 await _apiClient.TriggerCreateAsync();
-                PrintError("Item creation was triggered. Check the database for the new item.");
+                PrintSuccess("Item creation was triggered. Check the database for the new item.");
             }
             catch (HttpRequestException ex)
             {
