@@ -4,11 +4,11 @@ namespace Views
 {
     public class UserInterface
     {
-        private readonly ApiService _apiService;
+        private readonly ApiClient _apiClient;
 
-        public UserInterface(ApiService apiService)
+        public UserInterface(ApiClient apiClient)
         {
-            _apiService = apiService;
+            _apiClient = apiClient;
         }
 
         public async Task RunAsync()
@@ -52,9 +52,16 @@ namespace Views
 
         private async Task TriggerCreateItemAsync()
         {
-            Console.WriteLine("Triggering item creation...");
-            await _apiService.TriggerCreateItemAsync(Item itemToCreate);
-            Console.WriteLine("Item creation triggered. Check the database for the new item.");
+            Console.WriteLine("Triggering item creation on the server...");
+            try
+            {
+                await _apiClient.TriggerCreateItemAsync(); // This should now be a simple trigger
+                Console.WriteLine("Item creation was triggered. Check the database for the new item.");
+            }
+            catch (HttpRequestException ex)
+            {
+                Console.WriteLine($"An error occurred when calling the API: {ex.Message}");
+            }
         }
 
         private async Task DeleteItemAsync()
@@ -62,7 +69,7 @@ namespace Views
             Console.Write("Enter the ID of the item to delete: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
-                await _apiService.DeleteItemAsync(id);
+                await _apiClient.DeleteItemAsync(id);
                 Console.WriteLine($"Item with ID {id} has been deleted.");
             }
             else
@@ -76,7 +83,7 @@ namespace Views
             Console.Write("Enter the ID of the item to print: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
-                Item item = await _apiService.GetItemByIdAsync(id);
+                Item item = await _apiClient.GetItemByIdAsync(id);
                 if (item != null)
                 {
                     Console.WriteLine($"ID: {item.Id}, Name: {item.Url}");
@@ -94,7 +101,7 @@ namespace Views
 
         private async Task PrintAllItemsAsync()
         {
-            IEnumerable<Item> items = await _apiService.GetAllItemsAsync();
+            IEnumerable<Item> items = await _apiClient.GetAllItemsAsync();
             foreach (var item in items)
             {
                 Console.WriteLine($"ID: {item.Id}, Url: {item.Url}");

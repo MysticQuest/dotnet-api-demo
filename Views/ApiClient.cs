@@ -14,9 +14,9 @@ namespace Views
             _baseAddress = baseAddress ?? throw new ArgumentNullException(nameof(baseAddress));
         }
 
-        public async Task TriggerCreateItemAsync(Item itemToCreate)
+        public async Task TriggerCreateItemAsync()
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseAddress}/items", itemToCreate);
+            var response = await _httpClient.PostAsJsonAsync($"{_baseAddress}/items", new { });
             if (!response.IsSuccessStatusCode)
             {
                 throw new HttpRequestException($"Error creating item: {response.ReasonPhrase}");

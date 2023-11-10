@@ -8,11 +8,11 @@ namespace Views
         {
             var serviceProvider = new ServiceCollection()
                 .AddSingleton(new HttpClient())
-                .AddSingleton<ApiService>(provider =>
-                    new ApiService(provider.GetRequiredService<HttpClient>(), "https://localhost:5001"))
+                .AddSingleton<ApiClient>(provider =>
+                    new ApiClient(provider.GetRequiredService<HttpClient>(), "https://localhost:5001"))
                 .BuildServiceProvider();
 
-            var apiService = serviceProvider.GetRequiredService<ApiService>();
+            var apiService = serviceProvider.GetRequiredService<ApiClient>();
             var ui = new UserInterface(apiService);
             await ui.RunAsync();
         }
