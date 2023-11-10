@@ -8,7 +8,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
       "ConnectionStrings": {
-        "DefaultConnection": "Data Source=ItemDatabase.db"
+        "DefaultConnection": "Data Source=MyApiDatabase.db"
       }
     }
   }

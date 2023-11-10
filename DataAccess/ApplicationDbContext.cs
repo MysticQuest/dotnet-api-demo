@@ -17,7 +17,7 @@ namespace DataAccess
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlite($"Data Source={AppDomain.CurrentDomain.BaseDirectory}ItemDatabase.db");
+                optionsBuilder.UseSqlite($"Data Source={AppDomain.CurrentDomain.BaseDirectory}MyApiDatabase.db");
             }
             base.OnConfiguring(optionsBuilder);
         }
