@@ -243,7 +243,7 @@ namespace Views
             }
 
             Type type = entity.GetType();
-            PrintInstruction($"Details of {type.Name}:");
+            PrintInstruction($"{type.Name} properties:");
             foreach (var prop in type.GetProperties())
             {
                 var value = prop.GetValue(entity);
