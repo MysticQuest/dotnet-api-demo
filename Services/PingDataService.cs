@@ -31,18 +31,32 @@ namespace Services
 
         public async Task<PingData> CreateAsync()
         {
-            //test
-            var pingData = new PingData
+            using (var ping = new Ping())
             {
-                Domain = "example.com",
-                RoundtripTime = 100,
-                Status = "Success",
-                DateTime = DateTime.UtcNow
-            };
+                try
+                {
+                    PingReply reply = await ping.SendPingAsync("www.google.com");
 
-            await _repository.CreateAsync(pingData);
-            return pingData;
+                    var pingData = new PingData
+                    {
+                        Domain = "www.google.com",
+                        RoundtripTime = reply.RoundtripTime,
+                        Status = reply.Status.ToString(),
+                        DateTime = DateTime.UtcNow
+                    };
+
+                    await _repository.CreateAsync(pingData);
+
+                    return pingData;
+                }
+                catch (PingException ex)
+                {
+                    _logger.LogError(ex, "Ping failed.");
+                    return null;
+                }
+            }
         }
+
 
         public async Task UpdateAsync(PingData pingData)
         {
