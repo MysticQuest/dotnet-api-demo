@@ -53,7 +53,7 @@ namespace Views
         private async Task TriggerCreateItemAsync()
         {
             Console.WriteLine("Triggering item creation...");
-            await _apiService.TriggerCreateItemAsync();
+            await _apiService.TriggerCreateItemAsync(Item itemToCreate);
             Console.WriteLine("Item creation triggered. Check the database for the new item.");
         }
 
