@@ -12,5 +12,6 @@ namespace Models
         public string Domain { get; set; }
         public long RoundtripTime { get; set; }
         public string Status { get; set; }
+        public DateTime DateTime { get; set; }
     }
 }
