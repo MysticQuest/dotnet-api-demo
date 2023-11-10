@@ -13,6 +13,28 @@ namespace Views
 
         public async Task RunAsync()
         {
+            Console.WriteLine("Select the model to manipulate:");
+            Console.WriteLine("1: Item");
+            Console.WriteLine("2: PingData");
+            Console.Write("Enter your choice: ");
+            var modelChoice = Console.ReadLine();
+
+            switch (modelChoice)
+            {
+                case "1":
+                    await PerformItemActionsAsync();
+                    break;
+                case "2":
+                    await PerformPingDataActionsAsync();
+                    break;
+                default:
+                    Console.WriteLine("Invalid option, try again.");
+                    break;
+            }
+        }
+
+        private async Task PerformItemActionsAsync()
+        {
             while (true)
             {
                 Console.WriteLine("\nSelect an option:");
@@ -107,5 +129,43 @@ namespace Views
                 Console.WriteLine($"ID: {item.Id}, Url: {item.Url}");
             }
         }
+
+        private void PrintInstruction(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        private void PrintAction(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Teal;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        private void PrintError(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        private void PrintSuccess(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine(message);
+            Console.ResetColor();
+        }
+
+        private string PromptForInput(string message)
+        {
+            Console.ForegroundColor = ConsoleColor.Gray;
+            Console.Write(message);
+            var input = Console.ReadLine();
+            Console.ResetColor();
+            return input;
+        }
+
     }
 }
