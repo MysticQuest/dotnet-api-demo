@@ -15,9 +15,10 @@ namespace Views
             _baseAddress = baseAddress;
         }
 
+        // TODO: change json reqs
         public async Task TriggerCreateItemAsync()
         {
-            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{_baseAddress}/items", new { });
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"{_baseAddress}5/items", new { });
             response.EnsureSuccessStatusCode();
         }
 
