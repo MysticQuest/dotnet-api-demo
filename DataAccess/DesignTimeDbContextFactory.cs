@@ -8,7 +8,7 @@ public class DesignTimeDbContextFactory : IDesignTimeDbContextFactory<Applicatio
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        var connectionString = $"Data Source={AppDomain.CurrentDomain.BaseDirectory}ItemDatabase.db";
+        var connectionString = $"Data Source={AppDomain.CurrentDomain.BaseDirectory}MyApiDatabase.db";
         optionsBuilder.UseSqlite(connectionString);
 
         return new ApplicationDbContext(optionsBuilder.Options);
