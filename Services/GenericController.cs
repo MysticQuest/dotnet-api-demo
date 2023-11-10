@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Services;
-using System;
-using System.Threading.Tasks;
+using Models;
 
-namespace ApiDemo.Controllers
+namespace Services
 {
     [ApiController]
     [Route("api/[controller]")]
     public class GenericController : ControllerBase
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILogger<ItemService> _logger;
 
-        public GenericController(IServiceProvider serviceProvider)
+        public GenericController(IServiceProvider serviceProvider, ILogger<ItemService> logger)
         {
             _serviceProvider = serviceProvider;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -67,13 +67,24 @@ namespace ApiDemo.Controllers
 
         private dynamic GetServiceForType(string typeName)
         {
-            var type = Type.GetType(typeName);
+            var assemblyContainingModels = typeof(Item).Assembly.FullName;
+            var fullyQualifiedTypeName = $"Models.{typeName}, {assemblyContainingModels}";
+
+            var type = Type.GetType(fullyQualifiedTypeName);
             if (type == null)
             {
-                throw new ArgumentException("Type not found", nameof(typeName));
+                throw new ArgumentException($"Type '{fullyQualifiedTypeName}' not found", nameof(typeName));
             }
+
             var serviceType = typeof(IService<>).MakeGenericType(type);
-            return _serviceProvider.GetService(serviceType);
+            dynamic service = _serviceProvider.GetService(serviceType);
+            if (service == null)
+            {
+                throw new InvalidOperationException($"Service for type '{typeName}' not registered.");
+            }
+
+            return service;
         }
+
     }
 }
