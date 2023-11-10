@@ -1,55 +1,48 @@
-﻿using Models;
+﻿using Microsoft.AspNetCore.Mvc;
+using Models;
 using System.Net.Http.Json;
 
 namespace Views
 {
-    public class ApiClient
+    public class ApiClient<T> where T : class, IEntity, new()
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseAddress;
 
-        public ApiClient(HttpClient httpClient, string baseAddress)
+        public ApiClient(HttpClient httpClient)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-            _baseAddress = baseAddress ?? throw new ArgumentNullException(nameof(baseAddress));
         }
 
-        public async Task TriggerCreateItemAsync()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            var response = await _httpClient.PostAsJsonAsync($"{_baseAddress}/items", new { });
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Error creating item: {response.ReasonPhrase}");
-            }
+            var response = await _httpClient.GetAsync($"{typeof(T).Name}s");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<IEnumerable<T>>();
         }
 
-        public async Task DeleteItemAsync(int id)
+        public async Task<T> GetByIdAsync(int id)
         {
-            var response = await _httpClient.DeleteAsync($"{_baseAddress}/items/{id}");
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Error deleting item with id {id}: {response.ReasonPhrase}");
-            }
+            var response = await _httpClient.GetAsync($"{typeof(T).Name}s/{id}");
+            response.EnsureSuccessStatusCode();
+            return await response.Content.ReadFromJsonAsync<T>();
         }
 
-        public async Task<Item> GetItemByIdAsync(int id)
+        public async Task TriggerCreateAsync()
         {
-            var response = await _httpClient.GetAsync($"{_baseAddress}/items/{id}");
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Item with id {id} not found: {response.ReasonPhrase}");
-            }
-            return await response.Content.ReadFromJsonAsync<Item>();
+            var response = await _httpClient.PostAsJsonAsync($"{typeof(T).Name}s", new { });
+            response.EnsureSuccessStatusCode();
         }
 
-        public async Task<IEnumerable<Item>> GetAllItemsAsync()
+        public async Task UpdateAsync(int id, T item)
         {
-            var response = await _httpClient.GetAsync($"{_baseAddress}/items");
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new HttpRequestException($"Error retrieving items: {response.ReasonPhrase}");
-            }
-            return await response.Content.ReadFromJsonAsync<IEnumerable<Item>>();
+            var response = await _httpClient.PutAsJsonAsync($"{typeof(T).Name}s/{id}", item);
+            response.EnsureSuccessStatusCode();
+        }
+
+        public async Task DeleteAsync(int id)
+        {
+            var response = await _httpClient.DeleteAsync($"{typeof(T).Name}s/{id}");
+            response.EnsureSuccessStatusCode();
         }
     }
 }

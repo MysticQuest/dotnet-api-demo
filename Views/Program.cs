@@ -7,13 +7,11 @@ namespace Views
         static async Task Main(string[] args)
         {
             var serviceProvider = new ServiceCollection()
-                .AddSingleton(new HttpClient())
-                .AddSingleton<ApiClient>(provider =>
-                    new ApiClient(provider.GetRequiredService<HttpClient>(), "https://localhost:5001"))
+                .AddSingleton(new HttpClient { BaseAddress = new Uri("https://localhost:5001/api/") })
+                .AddTransient(typeof(ApiClient<>))
                 .BuildServiceProvider();
 
-            var apiService = serviceProvider.GetRequiredService<ApiClient>();
-            var ui = new UserInterface(apiService);
+            var ui = new UserInterface(serviceProvider);
             await ui.RunAsync();
         }
     }

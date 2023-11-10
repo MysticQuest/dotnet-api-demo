@@ -1,145 +1,160 @@
-﻿using Models;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Models;
 
 namespace Views
 {
     public class UserInterface
     {
-        private readonly ApiClient _apiClient;
+        private readonly IServiceProvider _serviceProvider;
+        private Type _currentModelType;
+        private dynamic _apiClient;
 
-        public UserInterface(ApiClient apiClient)
+        public UserInterface(IServiceProvider serviceProvider)
         {
-            _apiClient = apiClient;
+            _serviceProvider = serviceProvider;
         }
 
         public async Task RunAsync()
         {
-            Console.WriteLine("Select the model to manipulate:");
-            Console.WriteLine("1: Item");
-            Console.WriteLine("2: PingData");
-            Console.Write("Enter your choice: ");
-            var modelChoice = Console.ReadLine();
-
-            switch (modelChoice)
-            {
-                case "1":
-                    await PerformItemActionsAsync();
-                    break;
-                case "2":
-                    await PerformPingDataActionsAsync();
-                    break;
-                default:
-                    Console.WriteLine("Invalid option, try again.");
-                    break;
-            }
-        }
-
-        private async Task PerformItemActionsAsync()
-        {
             while (true)
             {
-                Console.WriteLine("\nSelect an option:");
-                Console.WriteLine("1: Create an item");
-                Console.WriteLine("2: Delete an item");
-                Console.WriteLine("3: Print an item");
-                Console.WriteLine("4: Print all items");
-                Console.WriteLine("5: Exit");
-                Console.Write("Enter your choice: ");
-                var choice = Console.ReadLine();
-
-                switch (choice)
+                try
                 {
-                    case "1":
-                        await TriggerCreateItemAsync();
-                        break;
-                    case "2":
-                        await DeleteItemAsync();
-                        break;
-                    case "3":
-                        await PrintItemAsync();
-                        break;
-                    case "4":
-                        await PrintAllItemsAsync();
-                        break;
-                    case "5":
-                        Console.WriteLine("Exiting...");
-                        return;
-                    default:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("Invalid option, try again.");
-                        Console.ResetColor();
-                        break;
+                    PrintInstruction("Select the model to manipulate:");
+                    PrintAction("1: Item");
+                    PrintAction("2: PingData");
+                    PrintAction("3: Exit");
+                    var modelChoice = PromptForInput("Enter your choice: ");
+
+                    switch (modelChoice)
+                    {
+                        case "1":
+                            _currentModelType = typeof(Item);
+                            _apiClient = _serviceProvider.GetRequiredService<ApiClient<Item>>();
+                            break;
+                        case "2":
+                            _currentModelType = typeof(PingData);
+                            _apiClient = _serviceProvider.GetRequiredService<ApiClient<PingData>>();
+                            break;
+                        case "3":
+                            PrintSuccess("Exiting...");
+                            return;
+                        default:
+                            PrintError("Invalid option, try again.");
+                            break;
+                    }
+                    if (_currentModelType != null)
+                    {
+                        await PerformActionsAsync();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    PrintError($"An error occurred: {ex.Message}");
                 }
             }
         }
 
-        private async Task TriggerCreateItemAsync()
+        private async Task PerformActionsAsync()
         {
-            Console.WriteLine("Triggering item creation on the server...");
+            PrintInstruction("Select an action:");
+            PrintAction("1: Create");
+            PrintAction("2: Delete");
+            PrintAction("3: Print one");
+            PrintAction("4: Print all");
+            PrintAction("5: Return to main menu");
+            var actionChoice = PromptForInput("Enter your choice: ");
+
+            switch (actionChoice)
+            {
+                case "1":
+                    await TriggerCreateAsync();
+                    break;
+                case "2":
+                    await DeleteAsync();
+                    break;
+                case "3":
+                    await PrintAsync();
+                    break;
+                case "4":
+                    await PrintAllAsync();
+                    break;
+                case "5":
+                    return;
+                default:
+                    PrintError("Invalid action. Please try again.");
+                    break;
+            }
+        }
+
+        private async Task TriggerCreateAsync()
+        {
+            PrintError("Triggering item creation on the server...");
             try
             {
-                await _apiClient.TriggerCreateItemAsync(); // This should now be a simple trigger
-                Console.WriteLine("Item creation was triggered. Check the database for the new item.");
+                await _apiClient.TriggerCreateAsync();
+                PrintError("Item creation was triggered. Check the database for the new item.");
             }
             catch (HttpRequestException ex)
             {
-                Console.WriteLine($"An error occurred when calling the API: {ex.Message}");
+                PrintError($"An error occurred when calling the API: {ex.Message}");
             }
         }
 
-        private async Task DeleteItemAsync()
+        private async Task DeleteAsync()
         {
-            Console.Write("Enter the ID of the item to delete: ");
+            PrintInstruction("Enter the ID of the item to delete: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
-                await _apiClient.DeleteItemAsync(id);
-                Console.WriteLine($"Item with ID {id} has been deleted.");
+                await _apiClient.DeleteAsync(id);
+                PrintAction($"Item with ID {id} has been deleted.");
             }
             else
             {
-                Console.WriteLine("Invalid ID format.");
+                PrintError("Invalid ID format.");
             }
         }
 
-        private async Task PrintItemAsync()
+        private async Task PrintAsync()
         {
-            Console.Write("Enter the ID of the item to print: ");
+            PrintInstruction("Enter the ID of the item to print: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
-                Item item = await _apiClient.GetItemByIdAsync(id);
+                Item item = await _apiClient.GetByIdAsync(id);
                 if (item != null)
                 {
-                    Console.WriteLine($"ID: {item.Id}, Name: {item.Url}");
+                    PrintSuccess($"ID: {item.Id}, Name: {item.Url}");
                 }
                 else
                 {
-                    Console.WriteLine("Item not found.");
+                    PrintError("Item not found.");
                 }
             }
             else
             {
-                Console.WriteLine("Invalid ID format.");
+                PrintError("Invalid ID format.");
             }
         }
 
-        private async Task PrintAllItemsAsync()
+        private async Task PrintAllAsync()
         {
-            IEnumerable<Item> items = await _apiClient.GetAllItemsAsync();
+            IEnumerable<Item> items = await _apiClient.GetAllAsync();
             foreach (var item in items)
             {
-                Console.WriteLine($"ID: {item.Id}, Url: {item.Url}");
+                PrintSuccess($"ID: {item.Id}, Url: {item.Url}");
             }
         }
 
         private void PrintInstruction(string message)
         {
-            Console.ForegroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine(message);
             Console.ResetColor();
         }
 
         private void PrintAction(string message)
         {
-            Console.ForegroundColor = ConsoleColor.Teal;
+            Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine(message);
             Console.ResetColor();
         }
