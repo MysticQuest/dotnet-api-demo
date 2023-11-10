@@ -3,12 +3,12 @@ using System.Net.Http.Json;
 
 namespace Views
 {
-    public class ApiService
+    public class ApiClient
     {
         private readonly HttpClient _httpClient;
         private readonly string _baseAddress;
 
-        public ApiService(HttpClient httpClient, string baseAddress)
+        public ApiClient(HttpClient httpClient, string baseAddress)
         {
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _baseAddress = baseAddress ?? throw new ArgumentNullException(nameof(baseAddress));
