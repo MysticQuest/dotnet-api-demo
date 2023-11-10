@@ -1,17 +1,29 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Models;
+using System.Threading.Tasks;
 
 namespace Views
 {
     public class UserInterface
     {
         private readonly IServiceProvider _serviceProvider;
-        private Type _currentModelType;
-        private dynamic _apiClient;
+        private Type? _currentModelType;
+        private dynamic? _apiClient;
+        private dynamic ApiClient
+        {
+            get
+            {
+                if (_apiClient == null)
+                {
+                    throw new InvalidOperationException("The API client has not been initialized.");
+                }
+                return _apiClient;
+            }
+        }
 
         public UserInterface(IServiceProvider serviceProvider)
         {
-            _serviceProvider = serviceProvider;
+            _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public async Task RunAsync()
@@ -43,6 +55,7 @@ namespace Views
                             PrintError("Invalid option, try again.");
                             break;
                     }
+
                     if (_currentModelType != null)
                     {
                         await PerformActionsAsync();
@@ -92,12 +105,16 @@ namespace Views
             PrintAction("Triggering item creation on the server...");
             try
             {
-                await _apiClient.TriggerCreateAsync();
+                await ApiClient.TriggerCreateAsync();
                 PrintSuccess("Item creation was triggered. Check the database for the new item.");
             }
             catch (HttpRequestException ex)
             {
                 PrintError($"An error occurred when calling the API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                PrintError($"An unexpected error occurred: {ex.Message}");
             }
         }
 
@@ -106,28 +123,51 @@ namespace Views
             PrintInstruction("Enter the ID of the item to delete: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
-                await _apiClient.DeleteAsync(id);
-                PrintAction($"Item with ID {id} has been deleted.");
+                try
+                {
+                    await ApiClient.DeleteAsync(id);
+                    PrintSuccess($"Item with ID {id} has been deleted.");
+                }
+                catch (HttpRequestException ex)
+                {
+                    PrintError($"An HTTP error occurred when calling the API: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    PrintError($"An unexpected error occurred: {ex.Message}");
+                }
             }
             else
             {
                 PrintError("Invalid ID format.");
             }
         }
+
 
         private async Task PrintAsync()
         {
             PrintInstruction("Enter the ID of the item to print: ");
             if (int.TryParse(Console.ReadLine(), out int id))
             {
-                Item item = await _apiClient.GetByIdAsync(id);
-                if (item != null)
+                try
                 {
-                    PrintSuccess($"ID: {item.Id}, Name: {item.Url}");
+                    var item = await ApiClient.GetByIdAsync(id);
+                    if (item != null)
+                    {
+                        PrintSuccess($"ID: {item.Id}, Url: {item.Url}");
+                    }
+                    else
+                    {
+                        PrintError("Item not found.");
+                    }
                 }
-                else
+                catch (HttpRequestException ex)
                 {
-                    PrintError("Item not found.");
+                    PrintError($"An HTTP error occurred when calling the API: {ex.Message}");
+                }
+                catch (Exception ex)
+                {
+                    PrintError($"An unexpected error occurred: {ex.Message}");
                 }
             }
             else
@@ -136,19 +176,31 @@ namespace Views
             }
         }
 
+
         private async Task PrintAllAsync()
         {
-            IEnumerable<Item> items = await _apiClient.GetAllAsync();
-            foreach (var item in items)
+            try
             {
-                PrintSuccess($"ID: {item.Id}, Url: {item.Url}");
+                var items = await ApiClient.GetAllAsync();
+                foreach (var item in items)
+                {
+                    PrintSuccess($"ID: {item.Id}, Url: {item.Url}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                PrintError($"An HTTP error occurred when calling the API: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                PrintError($"An unexpected error occurred: {ex.Message}");
             }
         }
 
         private void PrintInstruction(string message)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine(message);
+            Console.WriteLine("\n" + message + "\n");
             Console.ResetColor();
         }
 
@@ -176,10 +228,10 @@ namespace Views
         private string PromptForInput(string message)
         {
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Write(message);
+            Console.Write("\n" + message);
             var input = Console.ReadLine();
             Console.ResetColor();
-            return input;
+            return input ?? string.Empty;
         }
 
     }
