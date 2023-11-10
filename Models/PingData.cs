@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Models
 {
-    public class PingData
+    public class PingData : IEntity
     {
         public int Id { get; set; }
         public string Domain { get; set; }
