@@ -22,14 +22,20 @@ namespace Views
         {
             var response = await _httpClient.GetAsync($"Generic?typeName={_typeName}");
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<IEnumerable<T>>();
+            var entities = await response.Content.ReadFromJsonAsync<IEnumerable<T>>();
+            if (entities == null)
+                throw new InvalidOperationException("Item not found or deserialization returned null.");
+            return entities;
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
             var response = await _httpClient.GetAsync($"Generic/{id}?typeName={_typeName}");
             response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<T>();
+            var entity = await response.Content.ReadFromJsonAsync<T>();
+            if (entity == null)
+                throw new InvalidOperationException("Item not found or deserialization returned null.");
+            return entity;
         }
 
         public async Task TriggerCreateAsync()
