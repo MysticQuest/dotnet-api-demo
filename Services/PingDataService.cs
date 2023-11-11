@@ -24,7 +24,7 @@ namespace Services
             return await _repository.GetAllAsync();
         }
 
-        public async Task<PingData> GetByIdAsync(int id)
+        public async Task<PingData?> GetByIdAsync(int id)
         {
             return await _repository.GetByIdAsync(id);
         }
@@ -46,16 +46,22 @@ namespace Services
                     };
 
                     await _repository.CreateAsync(pingData);
-
                     return pingData;
                 }
                 catch (PingException ex)
                 {
-                    _logger.LogError(ex, "Ping failed.");
-                    return null;
+                    _logger.LogError(ex, "Ping failed due to a PingException.");
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "An unexpected exception occurred during the ping operation.");
+                    throw;
                 }
             }
         }
+
+
 
 
         public async Task UpdateAsync(PingData pingData)

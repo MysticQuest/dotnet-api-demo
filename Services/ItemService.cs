@@ -24,7 +24,7 @@ namespace Services
             return await _itemRepository.GetAllAsync();
         }
 
-        public async Task<Item> GetByIdAsync(int id)
+        public async Task<Item?> GetByIdAsync(int id)
         {
             return await _itemRepository.GetByIdAsync(id);
         }

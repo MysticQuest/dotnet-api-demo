@@ -20,7 +20,7 @@ namespace DataAccess
             return await _dbSet.ToListAsync();
         }
 
-        public async Task<T> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
@@ -40,9 +40,12 @@ namespace DataAccess
 
         public async Task DeleteAsync(int id)
         {
-            T entityToDelete = await _dbSet.FindAsync(id);
-            _dbSet.Remove(entityToDelete);
-            await _context.SaveChangesAsync();
+            T? entityToDelete = await _dbSet.FindAsync(id);
+            if (entityToDelete != null)
+            {
+                _dbSet.Remove(entityToDelete);
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }

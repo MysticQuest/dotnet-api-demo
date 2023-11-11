@@ -77,7 +77,7 @@ namespace Services
             }
 
             var serviceType = typeof(IService<>).MakeGenericType(type);
-            dynamic service = _serviceProvider.GetService(serviceType);
+            var service = _serviceProvider.GetService(serviceType);
             if (service == null)
             {
                 throw new InvalidOperationException($"Service for type '{typeName}' not registered.");
