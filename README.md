@@ -1,7 +1,7 @@
 # ASP.NET API, Console App & DB
 
 The project launches both a console application and an ASP.NET API that listens on localhost.
-- The Views project in this case is not a front-end. It is the console app and just emulates a client that would otherwise hit the faceless API remotely. It provides a command-line interface for operations like printing, deleting, and retrieving records.
+- The Views project is a command line interface that calls the API application on localhost, for operations like printing, deleting, and retrieving records.
 - The Services project includes an ASP.NET API app that hosts endpoints for CRUD operations, dynamically handling service types for different data models. It also includes the startup configuration for the application.
 - The Models project contains data models that represent the structure of records stored in the database.
 - The DataAccess project manages the Entity Framework Core DbContext and migrations for SQLite database interactions.
